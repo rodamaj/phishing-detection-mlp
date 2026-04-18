@@ -3,7 +3,7 @@
 This project uses a Multilayer Perceptron (MLP) to classify URLs as phishing or legitimate based on engineered features.
 
 ## 🧰 Tech Stack
-- Python 3.x
+- Python 3.14.x
 - PyTorch
 - Scikit-learn
 - Pandas / NumPy
@@ -42,5 +42,5 @@ pip install -r requirements.txt
 ### 4. How to run
 
 ```bash
-python src/train.py
+python3 main.py
 ```
