@@ -3,7 +3,7 @@
 This project uses a Multilayer Perceptron (MLP) to classify URLs as phishing or legitimate based on engineered features.
 
 ## 🧰 Tech Stack
-- Python 3.x
+- Python 3.14.x
 - PyTorch
 - Scikit-learn
 - Pandas / NumPy
@@ -39,8 +39,45 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 4. How to run
+### 4. Install development dependencies
+
+Use these dependencies when working with notebooks or contributing to the project.
 
 ```bash
-python src/train.py
+pip install -r requirements-dev.txt
+```
+
+### 5. Configure notebook output stripping
+
+The repository is configured to strip notebook outputs with `nbstripout` before committing.
+After installing the development dependencies, enable the Git filter locally:
+
+```bash
+nbstripout --install
+```
+
+You can verify the installation with:
+
+```bash
+nbstripout --status
+```
+
+### 6. Register the notebook kernel
+
+Register the virtual environment as a Jupyter kernel so notebooks use the project dependencies:
+
+```bash
+python -m ipykernel install --user --name phishing-detection-mlp --display-name "Python (phishing-detection-mlp)"
+```
+
+Then, in Jupyter or VS Code, select the kernel named:
+
+```text
+Python (phishing-detection-mlp)
+```
+
+### 7. How to run
+
+```bash
+python3 main.py
 ```
