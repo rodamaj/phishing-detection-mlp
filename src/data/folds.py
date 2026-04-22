@@ -7,9 +7,7 @@ import random
 def split_train_test(
     df: pd.DataFrame, train_ratio: float = 0.5, random_state: int = 8
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Divide un DataFrame en conjuntos de entrenamiento y prueba.
-    """
+    """Divide un DataFrame en conjuntos de entrenamiento y prueba."""
 
     # Lista de índices y mezcla aleatoria con semilla para reproducibilidad
     indices = list(df.index)
