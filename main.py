@@ -8,15 +8,17 @@ def main():
     """Ejecuta el flujo principal de preparación, entrenamiento y evaluación."""
 
     # Parámetros e hiperparámetros
+    file_path = "data/dataset.csv"
+    target_column = "label"
     random_state = 8
     train_ratio = 0.8
     epochs = 20
     learning_rate = 0.001
 
     X_train, X_test, y_train, y_test, _ = prepare_data(
-        file_path="data/dataset.csv",
+        file_path=file_path,
         cols_to_normalize=COLS_TO_NORMALIZE,
-        target_column="label",
+        target_column=target_column,
         train_ratio=train_ratio,
         random_state=random_state,
     )
