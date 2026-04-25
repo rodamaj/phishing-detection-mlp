@@ -4,6 +4,8 @@ from typing import Tuple, Union
 import numpy as np
 import pandas as pd
 
+from src.constants import FEATURE_COLUMNS
+
 from .folds import split_train_test
 from .normalization import apply_scaler, normalize_data
 
@@ -25,15 +27,23 @@ def split_features_target(
     return X, y
 
 
-def select_numeric_features(
-    X_train: pd.DataFrame, X_test: pd.DataFrame
+def select_feature_columns(
+    X_train: pd.DataFrame,
+    X_test: pd.DataFrame,
+    feature_columns: list,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Conserva solo las columnas numéricas compartidas entre train y test."""
+    """Conserva las features del modelo en el orden esperado."""
 
-    numeric_columns = X_train.select_dtypes(include=["number", "bool"]).columns.tolist()
+    missing_columns = [
+        column
+        for column in feature_columns
+        if column not in X_train.columns or column not in X_test.columns
+    ]
+    if missing_columns:
+        raise ValueError(f"Faltan columnas requeridas: {missing_columns}")
 
-    X_train = X_train[numeric_columns].copy()
-    X_test = X_test[numeric_columns].copy()
+    X_train = X_train[feature_columns].copy()
+    X_test = X_test[feature_columns].copy()
 
     return X_train, X_test
 
@@ -42,6 +52,7 @@ def prepare_data(
     file_path: Union[str, Path],
     cols_to_normalize: list,
     target_column: str,
+    feature_columns: list = FEATURE_COLUMNS,
     train_ratio: float = 0.5,
     random_state: int = 8,
 ):
@@ -54,7 +65,7 @@ def prepare_data(
 
     X_train, y_train = split_features_target(train_data, target_column)
     X_test, y_test = split_features_target(test_data, target_column)
-    X_train, X_test = select_numeric_features(X_train, X_test)
+    X_train, X_test = select_feature_columns(X_train, X_test, feature_columns)
 
     X_train, scaler = normalize_data(X_train, cols_to_normalize)
     X_test = apply_scaler(X_test, scaler, cols_to_normalize)
