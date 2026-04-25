@@ -2,7 +2,7 @@ from src.data.data import prepare_data
 from src.evaluate import evaluate_model
 from src.train import train_model
 from src.constants import COLS_TO_NORMALIZE
-
+from src.predictor import Predictor
 
 def main():
     """Ejecuta el flujo principal de preparación, entrenamiento y evaluación."""
@@ -15,7 +15,7 @@ def main():
     epochs = 20
     learning_rate = 0.001
 
-    X_train, X_test, y_train, y_test, _ = prepare_data(
+    X_train, X_test, y_train, y_test, scaler = prepare_data(
         file_path=file_path,
         cols_to_normalize=COLS_TO_NORMALIZE,
         target_column=target_column,
@@ -57,6 +57,8 @@ def main():
         print(f"{metric_name}: {value:.4f}")
     print()
 
+    predictor = Predictor(model, scaler)
+    predictor.interaction()
 
 if __name__ == "__main__":
     main()
