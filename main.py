@@ -4,6 +4,7 @@ from src.train import train_model
 from src.constants import COLS_TO_NORMALIZE
 from src.predictor import Predictor
 
+
 def main():
     """Ejecuta el flujo principal de preparación, entrenamiento y evaluación."""
 
@@ -57,8 +58,9 @@ def main():
         print(f"{metric_name}: {value:.4f}")
     print()
 
-    predictor = Predictor(model, scaler)
+    predictor = Predictor(model, scaler, threshold=selected_threshold)
     predictor.interaction()
+
 
 if __name__ == "__main__":
     main()

@@ -1,35 +1,39 @@
 # src/predictor.py
 
-from ast import parse
-from cProfile import label
 import numpy as np
 import pandas as pd
 import re
 import math
 from collections import Counter
 from urllib.parse import urlparse
+import tldextract
 from src.data.normalization import apply_scaler
-from src.constants import COLS_TO_NORMALIZE
+from src.constants import FEATURE_COLUMNS, COLS_TO_NORMALIZE
 
 
 class Predictor:
-    def __init__(self, model, scaler):
+    def __init__(self, model, scaler, threshold: float = 0.5):
         self.model = model
         self.scaler = scaler
+        self.threshold = threshold
+
+    # Calcula la longitud del dominio (dominio + TLD)
+    def _get_dom_len(self, ext):
+        if ext.suffix:
+            return len(f"{ext.domain}.{ext.suffix}")
+
+        return len(ext.domain)
 
     # Extrae el TLD y su longitud
-    def _get_tld_len(self, parsed):
-        domain_parts = parsed.netloc.split(".")
-        if len(domain_parts) > 1:
-            return len(domain_parts[-1])
-        return 0
+    def _get_tld_len(self, ext):
+        return len(ext.suffix)
 
     # Cuenta subdominios (si hay más de 2 partes en el dominio)
-    def _get_subdomain_count(self, parsed):
-        domain_parts = parsed.netloc.split(".")
-        if len(domain_parts) <= 2:
+    def _get_subdomain_count(self, ext):
+        if not ext.subdomain:
             return 0
-        return len(domain_parts) - 2
+
+        return len(ext.subdomain.split("."))
 
     # Calcula la entropía de la URL
     def _get_entropy(self, url: str):
@@ -50,12 +54,13 @@ class Predictor:
     def _extract_features(self, url: str) -> dict:
 
         parsed = urlparse(url)
+        ext = tldextract.extract(url)
 
         # Variables base
         total_len = len(url)
-        dom_len = len(parsed.netloc)
-        tld_len = self._get_tld_len(parsed)
-        subdom_cnt = self._get_subdomain_count(parsed)
+        dom_len = self._get_dom_len(ext)
+        tld_len = self._get_tld_len(ext)
+        subdom_cnt = self._get_subdomain_count(ext)
         is_ip = 1 if re.match(r"\d+\.\d+\.\d+\.\d+", parsed.netloc) else 0
         is_https = 1 if parsed.scheme == "https" else 0
         letter_cnt = sum(c.isalpha() for c in url)
@@ -112,41 +117,22 @@ class Predictor:
     def _prepare_input(self, url: str):
         f = self._extract_features(url)
 
-        X = np.array([[
-            f["url_len"],
-            f["dom_len"],
-            f["tld_len"],
-            f["subdom_cnt"],
-            f["letter_cnt"],
-            f["digit_cnt"],
-            f["special_cnt"],
-            f["eq_cnt"],
-            f["qm_cnt"],
-            f["amp_cnt"],
-            f["dot_cnt"],
-            f["dash_cnt"],
-            f["under_cnt"],
-            f["letter_ratio"],
-            f["digit_ratio"],
-            f["spec_ratio"],
-            f["is_https"],
-            f["slash_cnt"],
-            f["entropy"],
-            f["path_len"],
-            f["query_len"],
-            f["is_ip"],
-        ]], dtype=np.float32)
+        X = pd.DataFrame([f], columns=FEATURE_COLUMNS)
+
+        print(f"\nFeatures para '{url}':")
+        print(X)
 
         # Aplicar scaler a columnas que corresponden a las features numéricas
-        X[:, :len(COLS_TO_NORMALIZE)] = self.scaler.transform(X[:, :len(COLS_TO_NORMALIZE)])
+        X = apply_scaler(X, self.scaler, COLS_TO_NORMALIZE)
 
-        return X
+        return X.to_numpy(dtype=np.float32)
 
     # Predicción
-    def predict(self, url: str, threshold: float = 0.5):
+    def predict(self, url: str, threshold: float | None = None):
         X = self._prepare_input(url)
+        threshold = self.threshold if threshold is None else threshold
 
-        prob = self.model.predict(X, verbose=0)[0][0]
+        prob = float(self.model.predict(X, verbose=0)[0][0])
         pred = 1 if prob >= threshold else 0
 
         return prob, pred
@@ -161,6 +147,8 @@ class Predictor:
 
             prob, pred = self.predict(url)
 
-            print(f"\nProbabilidad no phishing: {prob:.6f}")
-            print(f"Probabilidad phishing: {1 - prob:.6f}")
+            print(f"\nProbabilidad phishing: {prob:.6f}")
+            print(f"Probabilidad no phishing: {1 - prob:.6f}")
+            print(f"Umbral usado: {self.threshold:.4f}")
+            print(f"Predicción: {'Phishing' if pred == 1 else 'No Phishing'}")
             print()
