@@ -2,7 +2,7 @@ import json
 import pickle
 from pathlib import Path
 
-from tensorflow.keras.models import load_model
+import tensorflow as tf
 
 
 MODEL_FILENAME = "model.keras"
@@ -102,7 +102,7 @@ def load_training_artifacts(artifact_dir: str | Path):
     """Carga el modelo, scaler y metadatos guardados."""
 
     paths = get_artifact_paths(artifact_dir)
-    model = load_model(paths["model"])
+    model = tf.keras.models.load_model(paths["model"])
 
     with paths["scaler"].open("rb") as file:
         scaler = pickle.load(file)
