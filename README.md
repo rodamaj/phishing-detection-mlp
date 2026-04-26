@@ -80,5 +80,27 @@ Python (phishing-detection-mlp)
 ### 7. How to run
 
 ```bash
-python3 main.py
+python main.py
+```
+
+On the first run, the project trains the MLP and saves the training artifacts in
+the `artifacts/` directory:
+
+- `model.keras`
+- `scaler.pkl`
+- `metadata.json`
+
+On later runs, the program loads those artifacts and skips retraining when they
+are compatible with the current feature columns and training configuration.
+
+To force a new training run:
+
+```bash
+python main.py --retrain
+```
+
+To use a different artifact directory:
+
+```bash
+python main.py --artifact-dir artifacts-experiment
 ```

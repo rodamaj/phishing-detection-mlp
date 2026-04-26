@@ -3,14 +3,14 @@ import random
 import numpy as np
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras.optimizers import Adam
 
 from src.evaluate import compute_metrics
 from src.model import create_model
 
 
-def train_model(X, y, epochs=20, learning_rate=0.001, batch_size=32, patience=3, random_state=8):
+def train_model(
+    X, y, epochs=20, learning_rate=0.001, batch_size=32, patience=3, random_state=8
+):
     """Entrena el modelo, elige el mejor umbral en validación y devuelve los datos clave."""
 
     # Fija semillas para que el entrenamiento sea reproducible entre ejecuciones.
@@ -26,7 +26,7 @@ def train_model(X, y, epochs=20, learning_rate=0.001, batch_size=32, patience=3,
     # Construye y configura el modelo con pérdida y optimizador estándar.
     model = create_model(X_train.shape[1])
     model.compile(
-        optimizer=Adam(learning_rate=learning_rate),
+        optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
         loss="binary_crossentropy",
         metrics=["accuracy"],
     )
@@ -39,7 +39,7 @@ def train_model(X, y, epochs=20, learning_rate=0.001, batch_size=32, patience=3,
         epochs=epochs,
         batch_size=batch_size,
         callbacks=[
-            EarlyStopping(
+            tf.keras.callbacks.EarlyStopping(
                 monitor="val_loss",
                 patience=patience,
                 restore_best_weights=True,
