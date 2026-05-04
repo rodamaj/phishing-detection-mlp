@@ -43,8 +43,8 @@ def main():
     target_column = "label"
     random_state = 8
     train_ratio = 0.8
-    epochs = 20
-    learning_rate = 0.001
+    epochs = 70
+    learning_rate = 0.0005
 
     artifact_dir = args.artifact_dir
     force_retrain = args.retrain

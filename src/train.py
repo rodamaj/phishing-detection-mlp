@@ -9,7 +9,7 @@ from src.model import create_model
 
 
 def train_model(
-    X, y, epochs=20, learning_rate=0.001, batch_size=32, patience=3, random_state=8
+    X, y, epochs=20, learning_rate=0.001, batch_size=32, patience=7, random_state=8
 ):
     """Entrena el modelo, elige el mejor umbral en validación y devuelve los datos clave."""
 
