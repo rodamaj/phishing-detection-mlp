@@ -12,7 +12,7 @@ def create_model(input_dim: int):
             # Primera capa densa para aprender patrones a partir de las features.
             tf.keras.layers.Dense(64, activation="relu"),
             # Dropout ayuda a reducir el sobreajuste durante entrenamiento.
-            tf.keras.layers.Dropout(0.2),
+            tf.keras.layers.Dropout(0.3),
             # Segunda capa oculta para refinar la representación aprendida.
             tf.keras.layers.Dense(32, activation="relu"),
             # Segunda regularización por dropout.
